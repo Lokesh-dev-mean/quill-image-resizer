@@ -1,6 +1,6 @@
 {
   "name": "@lokesh-stack/quill-image-pro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Advanced image management plugin for Quill editor with responsive resizing, alignment, text wrapping, and comprehensive image tools",
   "main": "./dist/quill-resize-image.js",
   "typings": "types/main.d.ts",
