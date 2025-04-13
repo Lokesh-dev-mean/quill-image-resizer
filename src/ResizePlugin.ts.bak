@@ -1,0 +1,795 @@
+import "./ResizePlugin.less";
+import { I18n, Locale, defaultLocale } from "./i18n";
+import { format } from "./utils";
+
+interface Size {
+  width: number;
+  height: number;
+}
+interface Position {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+class ResizeElement extends HTMLElement {
+  public originSize?: Size | null = null;
+  [key: string]: any;
+}
+
+interface ResizePluginOption {
+  locale?: Locale;
+  [index: string]: any;
+}
+const template = `
+<div class="handler" title="{0}"></div>
+<div class="toolbar">
+  <div class="group">
+    <a class="btn" data-type="align" data-styles="float:left"><svg width="24" height="24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M6 17h12a1 1 0 0 1 0 2H6a1 1 0 0 1 0-2m0-8h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1m0-4h12a1 1 0 0 1 0 2H6a1 1 0 1 1 0-2"></path></svg></a>
+    <a class="btn" data-type="align" data-styles="display:block;margin:auto;"><svg width="24" height="24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M6 17h12a1 1 0 0 1 0 2H6a1 1 0 0 1 0-2m4-8h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1M6 5h12a1 1 0 0 1 0 2H6a1 1 0 1 1 0-2"></path></svg></a>
+    <a class="btn" data-type="align" data-styles="float:right;"><svg width="24" height="24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M6 17h12a1 1 0 0 1 0 2H6a1 1 0 0 1 0-2m8-8h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1M6 5h12a1 1 0 0 1 0 2H6a1 1 0 1 1 0-2"></path></svg></a>
+  </div>
+  <div class="group-divider"></div>
+  <div class="group">
+    <a class="btn" data-type="wrap" data-styles="float:left;margin:12px 12px 12px auto;"><svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M6 17h12a1 1 0 0 1 0 2H6a1 1 0 0 1 0-2m8-8h4a1 1 0 0 1 0 2h-4a1 1 0 0 1 0-2m0 4h4a1 1 0 0 1 0 2h-4a1 1 0 0 1 0-2M6 9h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1m0-4h12a1 1 0 0 1 0 2H6a1 1 0 1 1 0-2"></path></svg></a>
+    <a class="btn" data-type="wrap" data-styles="float:right;margin:12px auto 12px 12px;"><svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M6 17h12a1 1 0 0 1 0 2H6a1 1 0 0 1 0-2m0-8h4a1 1 0 0 1 0 2H6a1 1 0 0 1 0-2m0 4h4a1 1 0 0 1 0 2H6a1 1 0 0 1 0-2m8-4h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1M6 5h12a1 1 0 0 1 0 2H6a1 1 0 1 1 0-2"></path></svg></a>
+  </div>
+  <div class="group-divider"></div>
+  <div class="group">
+    <a class="btn" data-type="copy" title="Copy image"><svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><g fill="currentcolor"><path d="M10 19h8V8h-8zM8 7.992C8 6.892 8.902 6 10.009 6h7.982C19.101 6 20 6.893 20 7.992v11.016c0 1.1-.902 1.992-2.009 1.992H10.01A2 2 0 0 1 8 19.008z"></path><path d="M5 16V4.992C5 3.892 5.902 3 7.009 3H15v13zm2 0h8V5H7z"></path></g></svg></a>
+    <a class="btn" data-type="link" title="Add link"><svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><g fill="currentcolor" fill-rule="evenodd"><path d="m12.856 5.457-.937.92a1 1 0 0 0 0 1.437 1.047 1.047 0 0 0 1.463 0l.984-.966c.967-.95 2.542-1.135 3.602-.288a2.54 2.54 0 0 1 .203 3.81l-2.903 2.852a2.646 2.646 0 0 1-3.696 0l-1.11-1.09L9 13.57l1.108 1.089c1.822 1.788 4.802 1.788 6.622 0l2.905-2.852a4.558 4.558 0 0 0-.357-6.82c-1.893-1.517-4.695-1.226-6.422.47"></path><path d="m11.144 19.543.937-.92a1 1 0 0 0 0-1.437 1.047 1.047 0 0 0-1.462 0l-.985.966c-.967.95-2.542 1.135-3.602.288a2.54 2.54 0 0 1-.203-3.81l2.903-2.852a2.646 2.646 0 0 1 3.696 0l1.11 1.09L15 11.43l-1.108-1.089c-1.822-1.788-4.802-1.788-6.622 0l-2.905 2.852a4.558 4.558 0 0 0 .357 6.82c1.893 1.517 4.695 1.226 6.422-.47"></path></g></svg></a>
+    <a class="btn" data-type="delete" title="Delete image"><svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M7 7h10a1 1 0 0 1 0 2H7a1 1 0 1 1 0-2m2.78 11a1 1 0 0 1-.97-.757L7.156 10.62A.5.5 0 0 1 7.64 10h8.72a.5.5 0 0 1 .485.621l-1.656 6.622a1 1 0 0 1-.97.757zM11 6h2a1 1 0 0 1 1 1h-4a1 1 0 0 1 1-1"></path></svg></a>
+  </div>
+</div>
+`;
+
+// Modal templates
+const linkModalTemplate = `
+<div class="quill-resize-modal-overlay">
+  <div class="quill-resize-modal">
+    <div class="quill-resize-modal-header">
+      <h3>Add Link</h3>
+      <button class="quill-resize-modal-close" data-action="close">&times;</button>
+    </div>
+    <div class="quill-resize-modal-body">
+      <div class="quill-resize-form-group">
+        <label for="quill-resize-link-url">URL</label>
+        <input type="text" id="quill-resize-link-url" placeholder="https://" />
+      </div>
+      <div class="quill-resize-form-group">
+        <label>
+          <input type="checkbox" id="quill-resize-link-newtab" checked />
+          Open in new tab
+        </label>
+      </div>
+    </div>
+    <div class="quill-resize-modal-footer">
+      <button class="quill-resize-btn quill-resize-btn-cancel" data-action="cancel">Cancel</button>
+      <button class="quill-resize-btn quill-resize-btn-primary" data-action="save">Add Link</button>
+    </div>
+  </div>
+</div>
+`;
+
+const confirmModalTemplate = `
+<div class="quill-resize-modal-overlay">
+  <div class="quill-resize-modal">
+    <div class="quill-resize-modal-header">
+      <h3>Confirm</h3>
+      <button class="quill-resize-modal-close" data-action="close">&times;</button>
+    </div>
+    <div class="quill-resize-modal-body">
+      <p>Are you sure you want to delete this image?</p>
+    </div>
+    <div class="quill-resize-modal-footer">
+      <button class="quill-resize-btn quill-resize-btn-cancel" data-action="cancel">Cancel</button>
+      <button class="quill-resize-btn quill-resize-btn-danger" data-action="confirm">Delete</button>
+    </div>
+  </div>
+</div>
+`;
+class ResizePlugin {
+  resizeTarget: ResizeElement;
+  resizer: HTMLElement | null = null;
+  container: HTMLElement;
+  editor: HTMLElement;
+  startResizePosition: Position | null = null;
+  i18n: I18n;
+  options: any;
+
+  constructor(
+    resizeTarget: ResizeElement,
+    container: HTMLElement,
+    editor: HTMLElement,
+    options?: ResizePluginOption
+  ) {
+    this.i18n = new I18n(options?.locale || defaultLocale);
+    this.options = options;
+    this.resizeTarget = resizeTarget;
+    if (!resizeTarget.originSize) {
+      resizeTarget.originSize = {
+        width: resizeTarget.clientWidth,
+        height: resizeTarget.clientHeight,
+      };
+    }
+    
+    this.editor = editor;
+    this.container = container;
+    this.initResizer();
+    this.positionResizerToTarget(resizeTarget);
+
+    this.resizing = this.resizing.bind(this);
+    this.endResize = this.endResize.bind(this);
+    this.startResize = this.startResize.bind(this);
+    this.toolbarClick = this.toolbarClick.bind(this);
+    this.toolbarInputChange = this.toolbarInputChange.bind(this);
+    this.onScroll = this.onScroll.bind(this);
+    this.bindEvents();
+    
+    // Restore active button states based on current image styles
+    this.restoreActiveButtonStates();
+  }
+
+  initResizer() {
+    let resizer: HTMLElement | null =
+      this.container.querySelector("#editor-resizer");
+    if (!resizer) {
+      resizer = document.createElement("div");
+      resizer.setAttribute("id", "editor-resizer");
+      resizer.innerHTML = format(
+        template,
+        this.i18n.findLabel("altTip")
+      );
+      this.container.appendChild(resizer);
+    }
+    this.resizer = resizer;
+  }
+  positionResizerToTarget(el: HTMLElement) {
+    if (this.resizer !== null) {
+      this.resizer.style.setProperty("left", el.offsetLeft + "px");
+      this.resizer.style.setProperty("top", (el.offsetTop - this.editor.scrollTop) + "px");
+      this.resizer.style.setProperty("width", el.clientWidth + "px");
+      this.resizer.style.setProperty("height", el.clientHeight + "px");
+    }
+  }
+  bindEvents() {
+    if (this.resizer !== null) {
+      this.resizer.addEventListener("mousedown", this.startResize);
+      this.resizer.addEventListener("click", this.toolbarClick);
+      this.resizer.addEventListener("change", this.toolbarInputChange);
+    }
+    window.addEventListener("mouseup", this.endResize);
+    window.addEventListener("mousemove", this.resizing);
+    this.editor.addEventListener('scroll', this.onScroll);
+  }
+  onScroll() {
+    this.positionResizerToTarget(this.resizeTarget);
+  }
+  _setStylesForToolbar(type: string, styles: string | undefined) {
+    const storeKey = `_styles_${type}`;
+    const style: CSSStyleDeclaration = this.resizeTarget.style;
+    const originStyles = this.resizeTarget[storeKey];
+    
+    // Clear previous styles of the same type
+    style.cssText =
+      style.cssText.replaceAll(" ", "").replace(originStyles, "");
+    
+    // Add new styles
+    if (styles) {
+      style.cssText += `;${styles}`;
+    }
+    
+    this.resizeTarget[storeKey] = styles;
+
+    this.positionResizerToTarget(this.resizeTarget);
+    this.options?.onChange(this.resizeTarget);
+  }
+
+  /**
+   * Find the Quill editor root element
+   */
+  private findQuillEditor(): HTMLElement | null {
+    // Try to find the closest Quill editor container
+    let element: HTMLElement | null = this.resizeTarget;
+    while (element && !element.classList.contains('ql-editor')) {
+      element = element.parentElement;
+    }
+    return element;
+  }
+  
+  /**
+   * Apply wrap-left styling to image in a way that works with Quill
+   */
+  private applyWrapLeft(): void {
+    // Save any existing text content before unwrapping
+    const existingTextContent = this.saveTextContentBeforeUnwrap();
+    
+    // First unwrap if already wrapped
+    this.unwrapImage();
+    
+    // Get editor root
+    const editor = this.findQuillEditor();
+    if (!editor) return;
+    
+    // Get current image position
+    const imageElement = this.resizeTarget;
+    
+    // 1. Create a div wrapper for the image with proper styling
+    const wrapDiv = document.createElement('div');
+    wrapDiv.className = 'image-wrap-container';
+    wrapDiv.style.cssText = 'display: inline; clear: both;';
+    
+    // 2. Replace the image with the wrapper
+    const parent = imageElement.parentNode;
+    if (!parent) return;
+    
+    // 3. Position the wrapper where the image was
+    parent.insertBefore(wrapDiv, imageElement);
+    
+    // 4. Put the image inside the wrapper
+    wrapDiv.appendChild(imageElement);
+    
+    // 5. Apply float styles directly to the image
+    imageElement.style.cssText += ';float:left;margin:12px 12px 12px auto;';
+    
+    // 6. Create an editable space next to the image
+    const textSpace = document.createElement('p');
+    
+    // Restore existing text content if available, otherwise use a break
+    if (existingTextContent) {
+      textSpace.innerHTML = existingTextContent;
+    } else {
+      textSpace.innerHTML = '\u003cbr\u003e';
+    }
+    
+    textSpace.style.marginLeft = (imageElement.offsetWidth + 24) + 'px';
+    
+    // Insert the text space after the wrapper
+    if (wrapDiv.nextSibling) {
+      parent.insertBefore(textSpace, wrapDiv.nextSibling);
+    } else {
+      parent.appendChild(textSpace);
+    }
+    
+    // 7. Update the stored target for resizing/positioning
+    this.resizeTarget = imageElement;
+    this.positionResizerToTarget(this.resizeTarget);
+    
+    // Store wrap style
+    const storeKey = `_styles_wrap`;
+    this.resizeTarget[storeKey] = 'float:left;margin:12px 12px 12px auto;';
+    
+    // Notify of changes
+    this.options?.onChange(this.resizeTarget);
+  }
+  
+  /**
+   * Apply wrap-right styling to image in a way that works with Quill
+   */
+  private applyWrapRight(): void {
+    // Save any existing text content before unwrapping
+    const existingTextContent = this.saveTextContentBeforeUnwrap();
+    
+    // First unwrap if already wrapped
+    this.unwrapImage();
+    
+    // Get editor root
+    const editor = this.findQuillEditor();
+    if (!editor) return;
+    
+    // Get current image position
+    const imageElement = this.resizeTarget;
+    
+    // 1. Create a div wrapper for the image with proper styling
+    const wrapDiv = document.createElement('div');
+    wrapDiv.className = 'image-wrap-container';
+    wrapDiv.style.cssText = 'display: inline; clear: both;';
+    
+    // 2. Replace the image with the wrapper
+    const parent = imageElement.parentNode;
+    if (!parent) return;
+    
+    // 3. Position the wrapper where the image was
+    parent.insertBefore(wrapDiv, imageElement);
+    
+    // 4. Put the image inside the wrapper
+    wrapDiv.appendChild(imageElement);
+    
+    // 5. Apply float styles directly to the image
+    imageElement.style.cssText += ';float:right;margin:12px auto 12px 12px;';
+    
+    // 6. Create an editable space next to the image
+    const textSpace = document.createElement('p');
+    
+    // Restore existing text content if available, otherwise use a break
+    if (existingTextContent) {
+      textSpace.innerHTML = existingTextContent;
+    } else {
+      textSpace.innerHTML = '\u003cbr\u003e';
+    }
+    
+    textSpace.style.marginRight = (imageElement.offsetWidth + 24) + 'px';
+    
+    // Insert the text space after the wrapper
+    if (wrapDiv.nextSibling) {
+      parent.insertBefore(textSpace, wrapDiv.nextSibling);
+    } else {
+      parent.appendChild(textSpace);
+    }
+    
+    // 7. Update the stored target for resizing/positioning
+    this.resizeTarget = imageElement;
+    this.positionResizerToTarget(this.resizeTarget);
+    
+    // Store wrap style
+    const storeKey = `_styles_wrap`;
+    this.resizeTarget[storeKey] = 'float:right;margin:12px auto 12px 12px;';
+    
+    // Notify of changes
+    this.options?.onChange(this.resizeTarget);
+  }
+  
+  /**
+   * Remove wrapping and return to normal flow
+   */
+  private unwrapImage(): void {
+    const imageElement = this.resizeTarget;
+    
+    // Check if image is inside a wrapper
+    const wrapper = imageElement.closest('.image-wrap-container');
+    if (wrapper) {
+      const parent = wrapper.parentNode;
+      if (!parent) return;
+      
+      // Remove the wrapper and put the image back in the normal flow
+      parent.insertBefore(imageElement, wrapper);
+      parent.removeChild(wrapper);
+      
+      // Clean up any extra elements that were added for text space
+      // Note: The text content is saved and restored by saveTextContentBeforeUnwrap
+      const nextSibling = imageElement.nextSibling;
+      if (nextSibling && nextSibling.nodeName === 'P') {
+        // Handle text content preservation in saveTextContentBeforeUnwrap
+        parent.removeChild(nextSibling);
+      }
+    }
+    
+    // Remove any float styles from the image
+    imageElement.style.float = '';
+    imageElement.style.margin = '';
+    
+    // Reset any stored wrap styles
+    const storeKey = `_styles_wrap`;
+    imageElement[storeKey] = '';
+  }
+  
+  /**
+   * Save any existing text content before unwrapping
+   */
+  private saveTextContentBeforeUnwrap(): string | null {
+    const imageElement = this.resizeTarget;
+    const wrapper = imageElement.closest('.image-wrap-container');
+    if (wrapper) {
+      const textSpace = wrapper.nextSibling;
+      if (textSpace && textSpace.nodeName === 'P') {
+        return (textSpace as HTMLElement).innerHTML;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Restore active states of buttons based on current image styles
+   * Called when an image is selected to maintain UI state
+   */
+  private restoreActiveButtonStates(): void {
+    if (!this.resizer) return;
+    
+    const imageElement = this.resizeTarget;
+    const style = imageElement.style;
+    
+    // First reset all active states
+    this.updateActiveButtonState(null, 'align');
+    this.updateActiveButtonState(null, 'wrap');
+    
+    // Check for wrapping styles
+    if (style.float === 'left') {
+      // Find and activate the wrap-left button
+      const wrapLeftBtn = this.resizer.querySelector('.btn[data-type="wrap"][data-styles*="float:left"]');
+      if (wrapLeftBtn) {
+        this.updateActiveButtonState(wrapLeftBtn as HTMLElement, 'wrap');
+      }
+    } else if (style.float === 'right') {
+      // Find and activate the wrap-right button
+      const wrapRightBtn = this.resizer.querySelector('.btn[data-type="wrap"][data-styles*="float:right"]');
+      if (wrapRightBtn) {
+        this.updateActiveButtonState(wrapRightBtn as HTMLElement, 'wrap');
+      }
+    } else {
+      // Check for alignment styles (only if not wrapped)
+      const displayBlock = style.display === 'block';
+      
+      if (displayBlock && style.marginLeft === 'auto' && style.marginRight === 'auto') {
+        // Center alignment
+        const centerBtn = this.resizer.querySelector('.btn[data-type="align"][data-styles*="margin:auto"]');
+        if (centerBtn) {
+          this.updateActiveButtonState(centerBtn as HTMLElement, 'align');
+        }
+      } else if (displayBlock && style.marginLeft === 'auto') {
+        // Right alignment
+        const rightBtn = this.resizer.querySelector('.btn[data-type="align"][data-styles*="margin-left:auto"]');
+        if (rightBtn) {
+          this.updateActiveButtonState(rightBtn as HTMLElement, 'align');
+        }
+      } else if (displayBlock && style.marginRight === 'auto') {
+        // Left alignment
+        const leftBtn = this.resizer.querySelector('.btn[data-type="align"][data-styles*="margin-right:auto"]');
+        if (leftBtn) {
+          this.updateActiveButtonState(leftBtn as HTMLElement, 'align');
+        }
+      }
+    }
+  }
+  
+  toolbarInputChange(e: Event) {
+    const target: HTMLInputElement = e.target as HTMLInputElement;
+    const type = target?.dataset?.type;
+    const value = target.value;
+    if (type && Number(value)) {
+      this._setStylesForToolbar(type, `width: ${Number(value)}%;`);
+    }
+  }
+  /**
+   * Update active state of buttons in a button group
+   * @param activeBtn The active button or null to clear all active states
+   * @param type The button type group
+   */
+  private updateActiveButtonState(activeBtn: HTMLElement | null, type: string) {
+    // Find all buttons of the same type
+    if (this.resizer) {
+      const allButtons = this.resizer.querySelectorAll(`.btn[data-type='${type}']`);
+      allButtons.forEach(btn => btn.classList.remove('active'));
+      
+      // Add active class to the clicked button (if provided)
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+      }
+    }
+  }
+
+  toolbarClick(e: MouseEvent) {
+    const target: HTMLElement = e.target as HTMLElement;
+    // Find the closest button if clicked on an SVG or path
+    const btn = target.closest('.btn');
+    if (!btn) return;
+    
+    const type = btn.getAttribute('data-type');
+
+    if (!type) return;
+    
+    if (type === 'align' || type === 'wrap') {
+      // Update the active state of buttons in the same group
+      this.updateActiveButtonState(btn as HTMLElement, type);
+      
+      // Get the requested styles
+      const styles = btn.getAttribute('data-styles') || '';
+      
+      // If this is an alignment button, remove any wrapping
+      if (type === 'align') {
+        // First unwrap if already wrapped
+        this.unwrapImage();
+        
+        // Then apply alignment styles
+        this._setStylesForToolbar(type, styles);
+        
+        // Reset the active state of wrap buttons
+        this.updateActiveButtonState(null, 'wrap');
+      }
+      // If this is a wrap button, handle wrapping specially
+      else if (type === 'wrap') {
+        // We need to implement wrapping in a way that allows text to be entered
+        if (styles.includes('float:left')) {
+          this.applyWrapLeft();
+        } else if (styles.includes('float:right')) {
+          this.applyWrapRight();
+        }
+        
+        // Remove any alignment styles and reset align buttons
+        this._setStylesForToolbar('align', '');
+        this.updateActiveButtonState(null, 'align');
+      }
+    } else if (type === 'copy') {
+      this.copyImage();
+    } else if (type === 'link') {
+      this.addLink();
+    } else if (type === 'delete') {
+      this.deleteImage();
+    }
+  }
+  startResize(e: MouseEvent) {
+    const target: HTMLElement = e.target as HTMLElement;
+    if (target.classList.contains("handler") && e.which === 1) {
+      this.startResizePosition = {
+        left: e.clientX,
+        top: e.clientY,
+        width: this.resizeTarget.clientWidth,
+        height: this.resizeTarget.clientHeight,
+      };
+    }
+  }
+  endResize() {
+    this.startResizePosition = null;
+    this.options?.onChange(this.resizeTarget);
+  }
+  resizing(e: MouseEvent) {
+    if (!this.startResizePosition) return;
+    const deltaX: number = e.clientX - this.startResizePosition.left;
+    const deltaY: number = e.clientY - this.startResizePosition.top;
+    let width = this.startResizePosition.width;
+    let height = this.startResizePosition.height;
+    width += deltaX;
+    height += deltaY;
+
+    if (e.altKey) {
+      const originSize = this.resizeTarget.originSize as Size;
+      const rate: number = originSize.height / originSize.width;
+      height = rate * width;
+    }
+
+    this.resizeTarget.style.setProperty("width", Math.max(width, 30) + "px");
+    this.resizeTarget.style.setProperty("height", Math.max(height, 30) + "px");
+    this.positionResizerToTarget(this.resizeTarget);
+  }
+
+  /**
+   * Copy the image to clipboard
+   */
+  copyImage() {
+    // Get image as HTMLImageElement
+    if (this.resizeTarget instanceof HTMLImageElement) {
+      // Create a canvas element
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      // Set canvas dimensions to match the image
+      canvas.width = this.resizeTarget.naturalWidth;
+      canvas.height = this.resizeTarget.naturalHeight;
+      
+      // Draw the image onto the canvas
+      ctx.drawImage(this.resizeTarget, 0, 0);
+      
+      // Convert canvas to blob and copy to clipboard
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        
+        try {
+          // Modern browsers support clipboard API
+          if (navigator.clipboard && navigator.clipboard.write) {
+            const item = new ClipboardItem({ 'image/png': blob });
+            navigator.clipboard.write([item]);
+          }
+        } catch (err) {
+          console.error('Failed to copy image: ', err);
+        }
+      }, 'image/png');
+    }
+  }
+  
+  /**
+   * Create a modal element
+   * @param template Modal template
+   * @returns Modal element
+   */
+  private createModal(template: string): HTMLElement {
+    const div = document.createElement('div');
+    div.innerHTML = template.trim();
+    return div.firstChild as HTMLElement;
+  }
+
+  /**
+   * Open a dialog to add a link to the image
+   */
+  addLink() {
+    if (!(this.resizeTarget instanceof HTMLImageElement)) return;
+    
+    // Check if image is already wrapped in an anchor tag
+    const parentAnchor = this.resizeTarget.closest('a');
+    const currentUrl = parentAnchor ? parentAnchor.getAttribute('href') : '';
+    const currentTarget = parentAnchor ? parentAnchor.getAttribute('target') : '_blank';
+    
+    // Create modal
+    const modal = this.createModal(linkModalTemplate);
+    document.body.appendChild(modal);
+    
+    // Set current URL if exists
+    const urlInput = modal.querySelector('#quill-resize-link-url') as HTMLInputElement;
+    if (urlInput) {
+      urlInput.value = currentUrl || 'https://';
+      setTimeout(() => urlInput.focus(), 100);
+    }
+    
+    // Set current target
+    const newTabCheckbox = modal.querySelector('#quill-resize-link-newtab') as HTMLInputElement;
+    if (newTabCheckbox) {
+      newTabCheckbox.checked = currentTarget === '_blank';
+    }
+    
+    // Handle events
+    const handleModalAction = (e: Event) => {
+      const target = e.target as HTMLElement;
+      const action = target.getAttribute('data-action');
+      
+      if (action === 'save') {
+        const url = urlInput ? urlInput.value.trim() : '';
+        const openInNewTab = newTabCheckbox ? newTabCheckbox.checked : true;
+        
+        if (url) {
+          if (parentAnchor) {
+            // Update existing link
+            parentAnchor.setAttribute('href', url);
+            parentAnchor.setAttribute('target', openInNewTab ? '_blank' : '_self');
+          } else {
+            // Create new link
+            const anchor = document.createElement('a');
+            anchor.setAttribute('href', url);
+            anchor.setAttribute('target', openInNewTab ? '_blank' : '_self');
+            
+            // Replace the image with the linked image
+            const parent = this.resizeTarget.parentNode;
+            if (parent) {
+              parent.insertBefore(anchor, this.resizeTarget);
+              anchor.appendChild(this.resizeTarget);
+              
+              // Update the resize target to the anchor if necessary
+              this.destory();
+              
+              // Emit onChange event
+              this.options?.onChange(this.resizeTarget);
+            }
+          }
+        }
+        
+        // Close modal
+        document.body.removeChild(modal);
+        document.removeEventListener('click', handleClickOutside);
+      } else if (action === 'close' || action === 'cancel') {
+        // Close modal
+        document.body.removeChild(modal);
+        document.removeEventListener('click', handleClickOutside);
+      }
+    };
+    
+    // Close when clicking outside
+    const handleClickOutside = (e: MouseEvent) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('click', handleClickOutside);
+      }
+    };
+    
+    // Attach event listeners
+    modal.addEventListener('click', handleClickOutside);
+    modal.querySelectorAll('[data-action]').forEach(el => {
+      el.addEventListener('click', handleModalAction);
+    });
+  }
+  
+  /**
+   * Delete the image using a custom confirmation modal
+   */
+  deleteImage() {
+    // Create modal
+    const modal = this.createModal(confirmModalTemplate);
+    document.body.appendChild(modal);
+    
+    // Handle events
+    const handleModalAction = (e: Event) => {
+      const target = e.target as HTMLElement;
+      const action = target.getAttribute('data-action');
+      
+      if (action === 'confirm') {
+        // Remove the image from the DOM
+        const parent = this.resizeTarget.parentNode;
+        if (parent) {
+          parent.removeChild(this.resizeTarget);
+          this.destroy();
+          
+          // Emit onChange event
+          this.options?.onChange(null);
+        }
+        
+        // Close modal
+        document.body.removeChild(modal);
+        document.removeEventListener('click', handleClickOutside);
+      } else if (action === 'close' || action === 'cancel') {
+        // Close modal
+        document.body.removeChild(modal);
+        document.removeEventListener('click', handleClickOutside);
+      }
+    };
+    
+    // Close when clicking outside
+    const handleClickOutside = (e: MouseEvent) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('click', handleClickOutside);
+      }
+    };
+    
+    // Attach event listeners
+    modal.addEventListener('click', handleModalAction);
+    modal.querySelectorAll('[data-action]').forEach(el => {
+      el.addEventListener('click', handleModalAction);
+    });
+  }
+};
+  
+// Close when clicking outside
+const handleClickOutside = (e: MouseEvent) => {
+  if (e.target === modal) {
+    document.body.removeChild(modal);
+    document.removeEventListener('click', handleClickOutside);
+  }
+};
+  
+// Attach event listeners
+modal.addEventListener('click', handleClickOutside);
+modal.querySelectorAll('[data-action]').forEach(el => {
+      
+      // Close modal
+      closeModal();
+      document.removeEventListener('click', handleClickOutside);
+    } else if (action === 'close' || action === 'cancel') {
+      // Close modal
+      closeModal();
+      document.removeEventListener('click', handleClickOutside);
+    }
+  };
+  
+  // Close when clicking outside
+  const handleClickOutside = (e: MouseEvent) => {
+    if (e.target === modal) {
+      closeModal();
+      document.removeEventListener('click', handleClickOutside);
+    }
+  };
+  
+  // Attach event listeners
+  modal.addEventListener('click', handleModalAction);
+  modal.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', handleModalAction);
+  });
+}
+
+/**
+ * Clean up resources and remove event listeners
+ */
+destroy() {
+  try {
+    // Only attempt to remove the resizer if it exists and is a child of the container
+    if (this.resizer && this.resizer.parentNode === this.container) {
+      this.container.removeChild(this.resizer);
+    }
+    
+    // Always remove event listeners
+    window.removeEventListener("mouseup", this.endResize);
+    window.removeEventListener("mousemove", this.resizing);
+    this.editor.removeEventListener('scroll', this.onScroll);
+    this.resizer = null;
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+  }
+}
+
+/**
+ * Legacy method with typo - kept for backward compatibility
+ * @deprecated Use destroy() instead
+ */
+destroy() {
+  return this.destroy();
+}
+
+}
+
+export default ResizePlugin;

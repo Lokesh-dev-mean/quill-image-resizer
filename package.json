@@ -1,6 +1,6 @@
 {
-  "name": "quill-resize-image",
-  "version": "1.0.5",
+  "name": "@lokesh-stack/advanced-quill-image-resize",
+  "version": "1.0.0",
   "main": "./dist/quill-resize-image.js",
   "typings": "types/main.d.ts",
   "license": "MIT",
@@ -34,13 +34,13 @@
     "dist",
     "types/*.d.ts"
   ],
-  "homepage": "https://github.com/hunghg255/quill-resize-image",
+  "homepage": "https://github.com/Lokesh-dev-mean/quill-image-resizer",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hunghg255/quill-resize-image"
+    "url": "https://github.com/Lokesh-dev-mean/quill-image-resizer.git"
   },
   "bugs": {
-    "url": "https://github.com/hunghg255/quill-resize-image/issues"
+    "url": "https://github.com/Lokesh-dev-mean/quill-image-resizer/issues"
   },
   "packageManager": "pnpm@9.7.1"
 }
