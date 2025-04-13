@@ -1,14 +1,26 @@
 {
-  "name": "@lokesh-stack/advanced-quill-image-resize",
+  "name": "@lokesh-stack/quill-image-pro",
   "version": "1.0.0",
+  "description": "Advanced image management plugin for Quill editor with responsive resizing, alignment, text wrapping, and comprehensive image tools",
   "main": "./dist/quill-resize-image.js",
   "typings": "types/main.d.ts",
   "license": "MIT",
   "keywords": [
     "quill",
-    "quill-resize-image",
-    "quill-image-resize",
-    "quill-iframe-resize"
+    "quill editor",
+    "quill plugin",
+    "quill image",
+    "image resize",
+    "responsive images",
+    "image alignment",
+    "text wrapping",
+    "image toolkit",
+    "wysiwyg",
+    "rich text editor",
+    "editor plugin",
+    "angular quill",
+    "react quill",
+    "vue quill"
   ],
   "devDependencies": {
     "@types/ms": "^0.7.34",

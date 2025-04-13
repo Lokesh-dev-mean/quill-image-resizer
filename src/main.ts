@@ -12,6 +12,17 @@ interface Quill {
 interface QuillResizeImageOptions {
   [index: string]: any;
   locale?: Locale;
+  toolbar?: {
+    /* Allow configuring which buttons show in the toolbar */
+    border?: boolean;       // Show border button
+    align?: boolean;        // Show alignment buttons
+    wrap?: boolean;         // Show text wrapping buttons
+    imageActions?: {        // Configure image action buttons
+      copy?: boolean;       // Show copy button
+      link?: boolean;       // Show link button
+      delete?: boolean;     // Show delete button
+    };
+  };
 }
 
 function QuillResizeImage(quill: Quill, options?: QuillResizeImageOptions) {
