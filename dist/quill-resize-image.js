@@ -56,7 +56,7 @@
         return __assign.apply(this, arguments);
     };
 
-    __$styleInject("#editor-resizer {\n  position: absolute;\n  outline: none;\n  /* Default state has no outline */\n  outline-offset: 1px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  /* Only show outline when a handler is active (during resize) */\n}\n#editor-resizer:has(.handler.active) {\n  outline: 2px solid rgba(3, 102, 214, 0.5);\n}\n#editor-resizer .handler {\n  position: absolute;\n  background-color: #e8e8e8;\n  cursor: col-resize;\n  border-radius: 8px;\n  width: 4px;\n  height: 60%;\n}\n#editor-resizer .handler.left-side-bar {\n  left: -10px;\n}\n#editor-resizer .handler.right-side-bar {\n  right: -10px;\n}\n#editor-resizer .handler:hover,\n#editor-resizer .handler.active,\n#editor-resizer .handler:focus {\n  background-color: #0366d6;\n}\n#toolbar {\n  position: fixed;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: center;\n  gap: 0.25rem;\n  width: max-content;\n  padding: 4px 8px;\n  border: 1px solid #eee;\n  border-radius: 4px;\n  background-color: #fff;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);\n  z-index: 100;\n}\n#toolbar .group-divider {\n  width: 2px;\n  height: 16px;\n  background-color: #aaa;\n}\n#toolbar .group {\n  display: flex;\n  border-radius: 6px;\n  white-space: nowrap;\n  text-align: center;\n  flex-direction: row;\n  gap: 0.25rem;\n  color: rgba(0, 0, 0, 0.65);\n}\n#toolbar .group .btn {\n  text-align: center;\n  align-items: center;\n  display: flex;\n  justify-content: center;\n  vertical-align: top;\n  user-select: none;\n  color: inherit;\n  border-radius: 3px;\n  transition: all 0.2s ease;\n  position: relative;\n  padding: 2px;\n}\n#toolbar .group .btn.btn-alt-text {\n  padding: 4px 8px;\n  font-weight: 600;\n}\n#toolbar .group .btn:hover {\n  background-color: rgba(0, 0, 0, 0.05);\n  transform: translateY(-1px);\n  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);\n}\n#toolbar .group .btn:not(.btn-group):active,\n#toolbar .group .btn.active {\n  background-color: rgba(0, 0, 0, 0.2);\n  color: #0366d6;\n  transform: translateY(0);\n  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);\n  border: 1px solid rgba(3, 102, 214, 0.5);\n  padding: 1px;\n}\n#toolbar .group .btn svg {\n  display: inline-block;\n  vertical-align: middle;\n  width: 24px;\n  height: 24px;\n}\n#toolbar .group .input-wrapper {\n  width: 25%;\n  border: 1px solid #eee;\n  position: relative;\n  border-right: 1px solid #bbb;\n  min-width: 4em;\n}\n#toolbar .group .input-wrapper::after {\n  content: \" \";\n  position: absolute;\n  height: 1px;\n  background-color: #333;\n  left: 0.5em;\n  right: 1em;\n  bottom: 0.2em;\n}\n#toolbar .group .input-wrapper input {\n  color: inherit;\n  text-align: center;\n  width: 100%;\n  border: none;\n  outline: none;\n  padding: 0 0.5em;\n  padding-right: 1.5em;\n}\n#toolbar .group .input-wrapper input:focus ~ .tooltip {\n  display: block;\n}\n#toolbar .group .input-wrapper .suffix {\n  position: absolute;\n  right: 0.5em;\n}\n#toolbar .group .input-wrapper .tooltip {\n  display: none;\n  position: absolute;\n  top: 100%;\n  left: 0;\n  font-size: small;\n  background-color: #fff;\n  box-shadow: 0 0 3px #a7a7a7;\n  padding: 0 0.6em;\n  border-radius: 5px;\n  zoom: 0.85;\n}\n/* Modal styles */\n.quill-resize-modal-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: rgba(0, 0, 0, 0.5);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 9999;\n}\n.quill-resize-modal {\n  background-color: #fff;\n  border-radius: 4px;\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);\n  width: 400px;\n  max-width: 90%;\n  overflow: hidden;\n}\n.quill-resize-modal .quill-resize-modal-header {\n  display: flex;\n  align-items: center;\n  gap: 0.5rem;\n  justify-content: space-between;\n  padding: 12px 8px;\n  border-bottom: 1px solid #eee;\n}\n.quill-resize-modal .quill-resize-modal-header .quill-resize-modal-close {\n  background: none;\n  border: none;\n  font-size: 20px;\n  cursor: pointer;\n  color: #999;\n  padding: 0;\n  margin: 0;\n  line-height: 1;\n}\n.quill-resize-modal .quill-resize-modal-header .quill-resize-modal-close:hover {\n  color: #333;\n}\n.quill-resize-modal .quill-resize-modal-body {\n  padding: 12px 36px;\n  display: flex;\n  flex-direction: column;\n}\n.quill-resize-modal .quill-resize-modal-body p {\n  margin: 0;\n}\n#quill-resize-alt-text {\n  width: 300px;\n  padding: 12px;\n  border: 1px solid #ddd;\n  font-size: 14px;\n}\n#quill-resize-alt-text:focus {\n  outline: none;\n  border-color: #0366d6;\n}\n.quill-resize-modal-backArrow {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 24px;\n  padding: 4px;\n  border: 0;\n  cursor: pointer;\n  background-color: transparent;\n  border-radius: 4px;\n}\n.quill-resize-modal-backArrow:hover {\n  background-color: #e8e8e8;\n}\n.quill-resize-modal-backArrow svg {\n  fill: #434343;\n  width: 100%;\n  height: 100%;\n}\n.quill-resize-modal-close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 24px;\n  padding: 4px;\n  border: 0;\n  cursor: pointer;\n  background-color: transparent;\n  border-radius: 100%;\n}\n.quill-resize-modal-close:hover {\n  background-color: #e8e8e8;\n}\n.quill-resize-modal-close svg {\n  fill: #434343;\n  width: 100%;\n  height: 100%;\n}\n.quill-resize-alt-text-description {\n  font-size: 14px;\n  color: #666;\n}\n.toolbar-separator {\n  display: inline-block;\n  width: 1px;\n  height: 16px;\n  background-color: #ddd;\n  margin: 0 4px;\n  vertical-align: middle;\n}\n");
+    __$styleInject("#editor-resizer {\n  position: absolute;\n  outline: none;\n  /* Default state has no outline */\n  outline-offset: 1px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  /* Only show outline when a handler is active (during resize) */\n}\n#editor-resizer:has(.handler.active) {\n  outline: 2px solid rgba(3, 102, 214, 0.5);\n}\n#editor-resizer .handler {\n  position: absolute;\n  background-color: #e8e8e8;\n  cursor: col-resize;\n  border-radius: 8px;\n  width: 4px;\n  height: 60%;\n}\n#editor-resizer .handler.left-side-bar {\n  left: -10px;\n}\n#editor-resizer .handler.right-side-bar {\n  right: -10px;\n}\n#editor-resizer .handler:hover,\n#editor-resizer .handler.active,\n#editor-resizer .handler:focus {\n  background-color: #0366d6;\n}\n#toolbar {\n  position: fixed;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: center;\n  gap: 0.25rem;\n  width: max-content;\n  padding: 4px 8px;\n  border: 1px solid #eee;\n  border-radius: 4px;\n  background-color: #fff;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);\n  z-index: 100;\n}\n#toolbar .group-divider {\n  width: 2px;\n  height: 16px;\n  background-color: #aaa;\n}\n#toolbar .group {\n  display: flex;\n  border-radius: 6px;\n  white-space: nowrap;\n  text-align: center;\n  flex-direction: row;\n  gap: 0.25rem;\n  color: rgba(0, 0, 0, 0.65);\n}\n#toolbar .group .btn {\n  text-align: center;\n  align-items: center;\n  display: flex;\n  justify-content: center;\n  vertical-align: top;\n  user-select: none;\n  color: inherit;\n  border-radius: 3px;\n  transition: all 0.2s ease;\n  position: relative;\n  padding: 2px;\n}\n#toolbar .group .btn.btn-alt-text {\n  padding: 4px 8px;\n  font-weight: 600;\n}\n#toolbar .group .btn:hover {\n  background-color: rgba(0, 0, 0, 0.05);\n  transform: translateY(-1px);\n  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);\n}\n#toolbar .group .btn:not(.btn-group):active,\n#toolbar .group .btn.active {\n  color: #0366d6;\n  transform: translateY(0);\n}\n#toolbar .group .btn svg {\n  display: inline-block;\n  vertical-align: middle;\n  width: 24px;\n  height: 24px;\n}\n#toolbar .group .input-wrapper {\n  width: 25%;\n  border: 1px solid #eee;\n  position: relative;\n  border-right: 1px solid #bbb;\n  min-width: 4em;\n}\n#toolbar .group .input-wrapper::after {\n  content: \" \";\n  position: absolute;\n  height: 1px;\n  background-color: #333;\n  left: 0.5em;\n  right: 1em;\n  bottom: 0.2em;\n}\n#toolbar .group .input-wrapper input {\n  color: inherit;\n  text-align: center;\n  width: 100%;\n  border: none;\n  outline: none;\n  padding: 0 0.5em;\n  padding-right: 1.5em;\n}\n#toolbar .group .input-wrapper input:focus ~ .tooltip {\n  display: block;\n}\n#toolbar .group .input-wrapper .suffix {\n  position: absolute;\n  right: 0.5em;\n}\n#toolbar .group .input-wrapper .tooltip {\n  display: none;\n  position: absolute;\n  top: 100%;\n  left: 0;\n  font-size: small;\n  background-color: #fff;\n  box-shadow: 0 0 3px #a7a7a7;\n  padding: 0 0.6em;\n  border-radius: 5px;\n  zoom: 0.85;\n}\n/* Modal styles */\n.quill-resize-modal-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: rgba(0, 0, 0, 0.5);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 9999;\n}\n.quill-resize-modal {\n  background-color: #fff;\n  border-radius: 4px;\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);\n  width: 400px;\n  max-width: 90%;\n  overflow: hidden;\n}\n.quill-resize-modal .quill-resize-modal-header {\n  display: flex;\n  align-items: center;\n  gap: 0.5rem;\n  justify-content: space-between;\n  padding: 12px 8px;\n  border-bottom: 1px solid #eee;\n}\n.quill-resize-modal .quill-resize-modal-body {\n  padding: 12px 36px;\n  display: flex;\n  flex-direction: column;\n}\n.quill-resize-modal .quill-resize-modal-body p {\n  margin: 0;\n}\n#quill-resize-alt-text {\n  width: 300px;\n  padding: 12px;\n  border: 1px solid #ddd;\n  font-size: 14px;\n}\n#quill-resize-alt-text:focus {\n  outline: none;\n  border-color: #0366d6;\n}\n.quill-resize-modal-backArrow {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  padding: 4px;\n  border: 0;\n  cursor: pointer;\n  background-color: transparent;\n  border-radius: 4px;\n}\n.quill-resize-modal-backArrow:hover {\n  background-color: #e8e8e8;\n}\n.quill-resize-modal-backArrow svg {\n  fill: #434343;\n  width: 100%;\n  height: 100%;\n}\n.quill-resize-modal-close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 24px;\n  padding: 4px;\n  border: 0;\n  cursor: pointer;\n  background-color: transparent;\n  border-radius: 100%;\n}\n.quill-resize-modal-close:hover {\n  background-color: #e8e8e8;\n}\n.quill-resize-modal-close svg {\n  fill: #434343;\n  width: 100%;\n  height: 100%;\n}\n.quill-resize-alt-text-description {\n  font-size: 14px;\n  color: #666;\n}\n.toolbar-separator {\n  display: inline-block;\n  width: 1px;\n  height: 16px;\n  background-color: #ddd;\n  margin: 0 4px;\n  vertical-align: middle;\n}\n/* Modal Styles */\n.quill-resize-modal-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: rgba(0, 0, 0, 0.5);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 9999;\n}\n.quill-resize-modal {\n  background-color: #fff;\n  border-radius: 4px;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  width: 100%;\n  max-width: 400px;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\n.quill-resize-modal-header {\n  padding: 16px;\n  border-bottom: 1px solid #eee;\n  display: flex;\n  align-items: center;\n  position: relative;\n}\n.quill-resize-modal-title {\n  margin: 0;\n  font-size: 16px;\n  font-weight: 600;\n  flex-grow: 1;\n}\n.quill-resize-modal-body {\n  padding: 16px;\n  flex-grow: 1;\n  max-height: 60vh;\n  overflow-y: auto;\n}\n.quill-resize-form-group label {\n  font-weight: 500;\n  color: #333;\n}\n.quill-resize-input {\n  width: 100%;\n  padding: 12px 12px;\n  border: 1px solid #ddd;\n  font-size: 14px;\n  transition: border-color 0.2s;\n}\n.quill-resize-input:focus {\n  outline: none;\n  border-color: #0366d6;\n}\n.quill-resize-checkbox-label {\n  display: flex;\n  align-items: center;\n  justify-content: start;\n  gap: 8px;\n  margin-bottom: 8px;\n  cursor: pointer;\n}\n.quill-resize-checkbox {\n  width: 20px;\n  height: 20px;\n}\n.quill-resize-checkbox-text {\n  font-size: 14px;\n}\n.quill-resize-delete-message {\n  font-size: 14px;\n  color: #333;\n  margin: 0 0 8px 0;\n}\n.quill-resize-modal-footer {\n  padding: 16px;\n  border-top: 1px solid #eee;\n  display: flex;\n  justify-content: flex-end;\n  gap: 12px;\n}\n.quill-resize-btn {\n  padding: 8px 16px;\n  border: none;\n  border-radius: 4px;\n  font-size: 14px;\n  font-weight: 500;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.quill-resize-btn-cancel {\n  background-color: #f5f5f5;\n  color: #333;\n}\n.quill-resize-btn-cancel:hover {\n  background-color: #e0e0e0;\n}\n.quill-resize-btn-primary {\n  background-color: #0366d6;\n  color: white;\n}\n.quill-resize-btn-primary:hover {\n  background-color: #0256b9;\n}\n.quill-resize-btn-danger {\n  background-color: #e53935;\n  color: white;\n}\n.quill-resize-btn-danger:hover {\n  background-color: #d32f2f;\n}\n");
 
     var I18n = /** @class */ (function () {
         function I18n(config) {
@@ -106,10 +106,9 @@
     var resizerTemplate = "\n<div class=\"handler left-side-bar\" title=\"{0}\"></div>\n<div class=\"handler right-side-bar\" title=\"{1}\"></div>\n\n";
     // Modal templates
     var altTextModalTemplate = "\n<div class=\"quill-resize-modal-overlay\">\n  <div class=\"quill-resize-modal\">\n    <div class=\"quill-resize-modal-header\">\n    \n      <button class=\"quill-resize-modal-backArrow\" data-action=\"back\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\" width=\"24px\" fill=\"#434343\"><path d=\"M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z\"/></svg>\n      </button>\n      <input type=\"text\" id=\"quill-resize-alt-text\" placeholder=\"Describe this image\"></input>\n      <button class=\"quill-resize-modal-close\" data-action=\"close\"><svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\" width=\"24px\" fill=\"#434343\"><path d=\"m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z\"/></svg></button>\n    </div>\n    <div class=\"quill-resize-modal-body\">\n      \n        <p class=\"quill-resize-alt-text-description\">Alt text is useful for people using screen readers because of visual limitations.</p>\n       \n    </div>\n    \n  </div>\n</div>\n";
-    var linkModalTemplate = "\n<div class=\"quill-resize-modal-overlay\">\n  <div class=\"quill-resize-modal\">\n    <div class=\"quill-resize-modal-header\">\n      <h3>Add Link</h3>\n      <button class=\"quill-resize-modal-close\" data-action=\"close\">&times;</button>\n    </div>\n    <div class=\"quill-resize-modal-body\">\n      <div class=\"quill-resize-form-group\">\n        <label for=\"quill-resize-link-url\">URL</label>\n        <input type=\"text\" id=\"quill-resize-link-url\" placeholder=\"https://\" />\n      </div>\n      <div class=\"quill-resize-form-group\">\n        <label>\n          <input type=\"checkbox\" id=\"quill-resize-link-newtab\" checked />\n          Open in new tab\n        </label>\n      </div>\n    </div>\n    <div class=\"quill-resize-modal-footer\">\n      <button class=\"quill-resize-btn quill-resize-btn-cancel\" data-action=\"cancel\">Cancel</button>\n      <button class=\"quill-resize-btn quill-resize-btn-primary\" data-action=\"save\">Add Link</button>\n    </div>\n  </div>\n</div>\n";
+    var linkModalTemplate = "\n<div class=\"quill-resize-modal-overlay\">\n  <div class=\"quill-resize-modal\">\n    <div class=\"quill-resize-modal-header\">\n      <button class=\"quill-resize-modal-backArrow\" data-action=\"back\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\" width=\"24px\" fill=\"#434343\"><path d=\"M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z\"/></svg>\n      </button>\n       <input type=\"text\" id=\"quill-resize-link-url\" placeholder=\"https://\" class=\"quill-resize-input\" />\n      \n      <button class=\"quill-resize-modal-close\" data-action=\"close\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\" width=\"24px\" fill=\"#434343\"><path d=\"m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z\"/></svg>\n      </button>\n    </div>\n    <div class=\"quill-resize-modal-body\">\n       \n      <div class=\"quill-resize-form-group\">\n        <label class=\"quill-resize-checkbox-label\">\n          <input type=\"checkbox\" id=\"quill-resize-link-newtab\" checked class=\"quill-resize-checkbox\" />\n          <span class=\"quill-resize-checkbox-text\">Open in new tab</span>\n        </label>\n      </div>\n    </div>\n    \n  </div>\n</div>\n";
     // Border dropdown styles
     var borderDropdownStyles = "\n.mat-menu {\n  position: fixed;\n  background-color: #fff;\n  border-radius: 4px;\n  box-shadow: 0 2px 10px rgba(0,0,0,0.2);\n  z-index: 1000;\n  min-width: 120px;\n  overflow: visible; /* Changed to visible to allow submenus to show */\n  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;\n}\n\n.menu-item-wrapper {\n  padding: 8px 0;\n}\n\n\n\n.menu-item {\n  display: flex;\n  align-items: center;\n  padding: 8px 16px;\n  cursor: pointer;\n  color: #333;\n  font-size: 14px;\n  position: relative;\n}\n\n.menu-item:hover {\n  background-color: #f5f5f5;\n}\n\n.current-color-preview {\n  margin-left: auto;\n  margin-right: 8px;\n}\n\n.color-box {\n  width: 20px;\n  height: 20px;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n  background-color: #000000;\n}\n\n.submenu-arrow {\n  // margin-left: auto;\n  text-align: center;\n  justify-content: center;\n  align-items: center;\n\n  font-size: 18px;\n  color: #888;\n}\n\n.submenu {\n  position: absolute;\n  top: 0;\n  right: -200px; /* Position to the right of main menu */\n  background-color: #fff;\n  border-radius: 4px;\n  box-shadow: 0 5px 15px rgba(0,0,0,0.2);\n  padding: 8px;\n  min-width: auto\n  z-index: 1001; /* Higher than parent menu */\n}\n\n.color-grid {\n  display: flex;\n  flex-direction: row;\n  gap: 12px;  \n  margin: 5px 10px;\n}\n\n.color-option {\n  width: 24px;\n  height: 24px;\n  border-radius: 4px;\n  cursor: pointer;\n  border: 1px solid #ddd;\n  transition: transform 0.1s ease;\n}\n\n.color-option:hover {\n  transform: scale(1.1);\n}\n\n.color-option.active {\n  outline: 2px solid #0052cc;\n  outline-offset: 1px;\n}\n\n.size-grid {\n  display: flex;\n  flex-direction: row;\n  gap: 12px; \n  margin: 5px 10px;\n}\n\n.size-option {\nposition: relative;\n  display: flex;\n  align-items: center;\n  width: 24px;\n  height: 24px;\n  cursor: pointer;\n  border-radius: 4px;\n  border: 1px solid #ddd;\n\n}\n\n.size-option:hover {\n  background-color: #f5f5f5;\n}\n\n.size-preview {\n  width: 20px;\n  position: absolute;\n  top: 10px;\n  left: 1px;\n  \n  background-color: #000;\n  margin-right: 12px;\n  transform: rotate(135deg);\n}\n\n.size-option.active {\n  background-color: #e6f7ff;\n}\n";
-    var confirmModalTemplate = "\n<div class=\"quill-resize-modal-overlay\">\n  <div class=\"quill-resize-modal\">\n    <div class=\"quill-resize-modal-header\">\n      <h3>Confirm</h3>\n      <button class=\"quill-resize-modal-close\" data-action=\"close\">&times;</button>\n    </div>\n    <div class=\"quill-resize-modal-body\">\n      <p>Are you sure you want to delete this image?</p>\n    </div>\n    <div class=\"quill-resize-modal-footer\">\n      <button class=\"quill-resize-btn quill-resize-btn-cancel\" data-action=\"cancel\">Cancel</button>\n      <button class=\"quill-resize-btn quill-resize-btn-danger\" data-action=\"confirm\">Delete</button>\n    </div>\n  </div>\n</div>\n";
     var ResizePlugin = /** @class */ (function () {
         function ResizePlugin(resizeTarget, container, editor, options) {
             var _this = this;
@@ -1297,18 +1296,10 @@
             if (urlInput) {
                 urlInput.value = currentUrl || 'https://';
                 setTimeout(function () { return urlInput.focus(); }, 100);
-            }
-            // Set current target
-            var newTabCheckbox = modal.querySelector('#quill-resize-link-newtab');
-            if (newTabCheckbox) {
-                newTabCheckbox.checked = currentTarget === '_blank';
-            }
-            // Handle events
-            var handleModalAction = function (e) {
-                var target = e.target;
-                var action = target.getAttribute('data-action');
-                if (action === 'save') {
-                    var url = urlInput ? urlInput.value.trim() : '';
+                // Real-time update as user types
+                urlInput.addEventListener('input', function () {
+                    var _a;
+                    var url = urlInput.value.trim();
                     var openInNewTab = newTabCheckbox ? newTabCheckbox.checked : true;
                     if (url) {
                         if (parentAnchor) {
@@ -1326,24 +1317,42 @@
                             if (parent) {
                                 parent.insertBefore(anchor, _this.resizeTarget);
                                 anchor.appendChild(_this.resizeTarget);
-                                // We need to recreate the resizer for the linked image
-                                _this.destroy();
-                                // Emit onChange event with a slight delay to let Quill stabilize
-                                setTimeout(function () {
-                                    var _a;
-                                    (_a = _this.options) === null || _a === void 0 ? void 0 : _a.onChange(_this.resizeTarget);
-                                }, 0);
                             }
                         }
+                        // Notify of changes
+                        (_a = _this.options) === null || _a === void 0 ? void 0 : _a.onChange(_this.resizeTarget);
                     }
+                });
+            }
+            // Set current target
+            var newTabCheckbox = modal.querySelector('#quill-resize-link-newtab');
+            if (newTabCheckbox) {
+                newTabCheckbox.checked = currentTarget === '_blank';
+                // Add event listener for checkbox changes
+                newTabCheckbox.addEventListener('change', function () {
+                    var url = urlInput ? urlInput.value.trim() : '';
+                    var openInNewTab = newTabCheckbox.checked;
+                    if (url && parentAnchor) {
+                        // Update existing link target
+                        parentAnchor.setAttribute('target', openInNewTab ? '_blank' : '_self');
+                    }
+                });
+            }
+            // Handle events
+            var handleModalAction = function (e) {
+                var target = e.target;
+                var action = target.getAttribute('data-action');
+                if (action === 'close' || action === 'cancel' || action === 'back') {
                     // Close modal
                     document.body.removeChild(modal);
                     document.removeEventListener('click', handleClickOutside);
-                }
-                else if (action === 'close' || action === 'cancel') {
-                    // Close modal
-                    document.body.removeChild(modal);
-                    document.removeEventListener('click', handleClickOutside);
+                    // We need to recreate the resizer for the linked image
+                    _this.destroy();
+                    // Emit onChange event with a slight delay to let Quill stabilize
+                    setTimeout(function () {
+                        var _a;
+                        (_a = _this.options) === null || _a === void 0 ? void 0 : _a.onChange(_this.resizeTarget);
+                    }, 0);
                 }
             };
             // Close when clicking outside
@@ -1355,7 +1364,29 @@
             };
             // Attach event listeners
             modal.addEventListener('click', handleClickOutside);
-            modal.querySelectorAll('[data-action]').forEach(function (el) {
+            // Explicitly attach event listeners to the back and close buttons
+            var backButton = modal.querySelector('button[data-action="back"]');
+            var closeButton = modal.querySelector('button[data-action="close"]');
+            if (backButton) {
+                backButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close modal
+                    document.body.removeChild(modal);
+                    document.removeEventListener('click', handleClickOutside);
+                });
+            }
+            if (closeButton) {
+                closeButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close modal
+                    document.body.removeChild(modal);
+                    document.removeEventListener('click', handleClickOutside);
+                });
+            }
+            // Also attach to any other elements with data-action attributes
+            modal.querySelectorAll('[data-action="cancel"], [data-action="save"]').forEach(function (el) {
                 el.addEventListener('click', handleModalAction);
             });
         };
@@ -1420,47 +1451,19 @@
             if (closeButton)
                 closeButton.addEventListener('click', handleModalAction);
         };
+        /**
+         * Delete the image immediately without confirmation
+         */
         ResizePlugin.prototype.deleteImage = function () {
-            var _this = this;
-            // Create modal
-            var modal = this.createModal(confirmModalTemplate);
-            document.body.appendChild(modal);
-            // Handle events
-            var handleModalAction = function (e) {
-                var _a;
-                var target = e.target;
-                var action = target.getAttribute('data-action');
-                if (action === 'confirm') {
-                    // Remove the image from the DOM
-                    var parent = _this.resizeTarget.parentNode;
-                    if (parent) {
-                        parent.removeChild(_this.resizeTarget);
-                        _this.destroy();
-                        // Emit onChange event
-                        (_a = _this.options) === null || _a === void 0 ? void 0 : _a.onChange(null);
-                    }
-                    // Close modal
-                    document.body.removeChild(modal);
-                    document.removeEventListener('click', handleClickOutside);
-                }
-                else if (action === 'close' || action === 'cancel') {
-                    // Close modal
-                    document.body.removeChild(modal);
-                    document.removeEventListener('click', handleClickOutside);
-                }
-            };
-            // Close when clicking outside
-            var handleClickOutside = function (e) {
-                if (e.target === modal) {
-                    document.body.removeChild(modal);
-                    document.removeEventListener('click', handleClickOutside);
-                }
-            };
-            // Attach event listeners
-            modal.addEventListener('click', handleModalAction);
-            modal.querySelectorAll('[data-action]').forEach(function (el) {
-                el.addEventListener('click', handleModalAction);
-            });
+            var _a;
+            // Remove the image from the DOM
+            var parent = this.resizeTarget.parentNode;
+            if (parent) {
+                parent.removeChild(this.resizeTarget);
+                this.destroy();
+                // Emit onChange event
+                (_a = this.options) === null || _a === void 0 ? void 0 : _a.onChange(null);
+            }
         };
         /**
          * Clean up resources and remove event listeners

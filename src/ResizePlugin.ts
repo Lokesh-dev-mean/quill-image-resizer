@@ -66,28 +66,29 @@ const linkModalTemplate = `
 <div class="quill-resize-modal-overlay">
   <div class="quill-resize-modal">
     <div class="quill-resize-modal-header">
-      <h3>Add Link</h3>
-      <button class="quill-resize-modal-close" data-action="close">&times;</button>
+      <button class="quill-resize-modal-backArrow" data-action="back">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#434343"><path d="M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z"/></svg>
+      </button>
+       <input type="text" id="quill-resize-link-url" placeholder="https://" class="quill-resize-input" />
+      
+      <button class="quill-resize-modal-close" data-action="close">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#434343"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+      </button>
     </div>
     <div class="quill-resize-modal-body">
+       
       <div class="quill-resize-form-group">
-        <label for="quill-resize-link-url">URL</label>
-        <input type="text" id="quill-resize-link-url" placeholder="https://" />
-      </div>
-      <div class="quill-resize-form-group">
-        <label>
-          <input type="checkbox" id="quill-resize-link-newtab" checked />
-          Open in new tab
+        <label class="quill-resize-checkbox-label">
+          <input type="checkbox" id="quill-resize-link-newtab" checked class="quill-resize-checkbox" />
+          <span class="quill-resize-checkbox-text">Open in new tab</span>
         </label>
       </div>
     </div>
-    <div class="quill-resize-modal-footer">
-      <button class="quill-resize-btn quill-resize-btn-cancel" data-action="cancel">Cancel</button>
-      <button class="quill-resize-btn quill-resize-btn-primary" data-action="save">Add Link</button>
-    </div>
+    
   </div>
 </div>
 `;
+ 
 
 // Border dropdown styles
 const borderDropdownStyles = `
@@ -220,24 +221,7 @@ position: relative;
   background-color: #e6f7ff;
 }
 `;
-
-const confirmModalTemplate = `
-<div class="quill-resize-modal-overlay">
-  <div class="quill-resize-modal">
-    <div class="quill-resize-modal-header">
-      <h3>Confirm</h3>
-      <button class="quill-resize-modal-close" data-action="close">&times;</button>
-    </div>
-    <div class="quill-resize-modal-body">
-      <p>Are you sure you want to delete this image?</p>
-    </div>
-    <div class="quill-resize-modal-footer">
-      <button class="quill-resize-btn quill-resize-btn-cancel" data-action="cancel">Cancel</button>
-      <button class="quill-resize-btn quill-resize-btn-danger" data-action="confirm">Delete</button>
-    </div>
-  </div>
-</div>
-`;
+ 
 class ResizePlugin {
     resizeTarget: ResizeElement;
     resizer: HTMLElement | null = null;
@@ -1626,23 +1610,12 @@ class ResizePlugin {
         if (urlInput) {
             urlInput.value = currentUrl || 'https://';
             setTimeout(() => (urlInput as any).focus(), 100);
-        }
-
-        // Set current target
-        const newTabCheckbox = modal.querySelector('#quill-resize-link-newtab') as HTMLInputElement;
-        if (newTabCheckbox) {
-            newTabCheckbox.checked = currentTarget === '_blank';
-        }
-
-        // Handle events
-        const handleModalAction = (e: Event) => {
-            const target = e.target as HTMLElement;
-            const action = target.getAttribute('data-action');
-
-            if (action === 'save') {
-                const url = urlInput ? urlInput.value.trim() : '';
+            
+            // Real-time update as user types
+            urlInput.addEventListener('input', () => {
+                const url = urlInput.value.trim();
                 const openInNewTab = newTabCheckbox ? newTabCheckbox.checked : true;
-
+                
                 if (url) {
                     if (parentAnchor) {
                         // Update existing link
@@ -1659,25 +1632,49 @@ class ResizePlugin {
                         if (parent) {
                             parent.insertBefore(anchor, this.resizeTarget);
                             anchor.appendChild(this.resizeTarget);
-
-                            // We need to recreate the resizer for the linked image
-                            this.destroy();
-
-                            // Emit onChange event with a slight delay to let Quill stabilize
-                            setTimeout(() => {
-                                this.options?.onChange(this.resizeTarget);
-                            }, 0);
                         }
                     }
+                    
+                    // Notify of changes
+                    this.options?.onChange(this.resizeTarget);
                 }
+            });
+        }
 
+        // Set current target
+        const newTabCheckbox = modal.querySelector('#quill-resize-link-newtab') as HTMLInputElement;
+        if (newTabCheckbox) {
+            newTabCheckbox.checked = currentTarget === '_blank';
+            
+            // Add event listener for checkbox changes
+            newTabCheckbox.addEventListener('change', () => {
+                const url = urlInput ? urlInput.value.trim() : '';
+                const openInNewTab = newTabCheckbox.checked;
+                
+                if (url && parentAnchor) {
+                    // Update existing link target
+                    parentAnchor.setAttribute('target', openInNewTab ? '_blank' : '_self');
+                }
+            });
+        }
+
+        // Handle events
+        const handleModalAction = (e: Event) => {
+            const target = e.target as HTMLElement;
+            const action = target.getAttribute('data-action');
+
+            if (action === 'close' || action === 'cancel' || action === 'back') {
                 // Close modal
                 document.body.removeChild(modal);
                 document.removeEventListener('click', handleClickOutside);
-            } else if (action === 'close' || action === 'cancel') {
-                // Close modal
-                document.body.removeChild(modal);
-                document.removeEventListener('click', handleClickOutside);
+                
+                // We need to recreate the resizer for the linked image
+                this.destroy();
+                
+                // Emit onChange event with a slight delay to let Quill stabilize
+                setTimeout(() => {
+                    this.options?.onChange(this.resizeTarget);
+                }, 0);
             }
         };
 
@@ -1691,7 +1688,33 @@ class ResizePlugin {
 
         // Attach event listeners
         modal.addEventListener('click', handleClickOutside);
-        modal.querySelectorAll('[data-action]').forEach(el => {
+        
+        // Explicitly attach event listeners to the back and close buttons
+        const backButton = modal.querySelector('button[data-action="back"]');
+        const closeButton = modal.querySelector('button[data-action="close"]');
+        
+        if (backButton) {
+            backButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Close modal
+                document.body.removeChild(modal);
+                document.removeEventListener('click', handleClickOutside);
+            });
+        }
+        
+        if (closeButton) {
+            closeButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Close modal
+                document.body.removeChild(modal);
+                document.removeEventListener('click', handleClickOutside);
+            });
+        }
+        
+        // Also attach to any other elements with data-action attributes
+        modal.querySelectorAll('[data-action="cancel"], [data-action="save"]').forEach(el => {
             el.addEventListener('click', handleModalAction);
         });
     }
@@ -1765,50 +1788,19 @@ class ResizePlugin {
         if (closeButton) closeButton.addEventListener('click', handleModalAction);
     }
 
+    /**
+     * Delete the image immediately without confirmation
+     */
     deleteImage() {
-        // Create modal
-        const modal = this.createModal(confirmModalTemplate);
-        document.body.appendChild(modal);
+        // Remove the image from the DOM
+        const parent = this.resizeTarget.parentNode;
+        if (parent) {
+            parent.removeChild(this.resizeTarget);
+            this.destroy();
 
-        // Handle events
-        const handleModalAction = (e: Event) => {
-            const target = e.target as HTMLElement;
-            const action = target.getAttribute('data-action');
-
-            if (action === 'confirm') {
-                // Remove the image from the DOM
-                const parent = this.resizeTarget.parentNode;
-                if (parent) {
-                    parent.removeChild(this.resizeTarget);
-                    this.destroy();
-
-                    // Emit onChange event
-                    this.options?.onChange(null);
-                }
-
-                // Close modal
-                document.body.removeChild(modal);
-                document.removeEventListener('click', handleClickOutside);
-            } else if (action === 'close' || action === 'cancel') {
-                // Close modal
-                document.body.removeChild(modal);
-                document.removeEventListener('click', handleClickOutside);
-            }
-        };
-
-        // Close when clicking outside
-        const handleClickOutside = (e: MouseEvent) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-                document.removeEventListener('click', handleClickOutside);
-            }
-        };
-
-        // Attach event listeners
-        modal.addEventListener('click', handleModalAction);
-        modal.querySelectorAll('[data-action]').forEach(el => {
-            el.addEventListener('click', handleModalAction);
-        });
+            // Emit onChange event
+            this.options?.onChange(null);
+        }
     }
 
     /**
