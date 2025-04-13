@@ -370,15 +370,27 @@ class ResizePlugin {
         if (!el || !this.resizer) return;
 
         try {
+            // Get computed style to properly include border dimensions
+            const computedStyle = window.getComputedStyle(el);
+            
+            // Calculate total width/height including borders
+            const borderLeftWidth = parseInt(computedStyle.borderLeftWidth, 10) || 0;
+            const borderRightWidth = parseInt(computedStyle.borderRightWidth, 10) || 0;
+            const borderTopWidth = parseInt(computedStyle.borderTopWidth, 10) || 0;
+            const borderBottomWidth = parseInt(computedStyle.borderBottomWidth, 10) || 0;
+            
+            // Calculate total dimensions including borders
+            const totalWidth = el.clientWidth + borderLeftWidth + borderRightWidth;
+            const totalHeight = el.clientHeight + borderTopWidth + borderBottomWidth;
+            
             // Position the resizer relative to the image
             this.resizer.style.setProperty("left", el.offsetLeft + "px");
             this.resizer.style.setProperty("top", (el.offsetTop - this.editor.scrollTop) + "px");
-            this.resizer.style.setProperty("width", el.clientWidth + "px");
-            this.resizer.style.setProperty("height", el.clientHeight + "px");
+            this.resizer.style.setProperty("width", totalWidth + "px");
+            this.resizer.style.setProperty("height", totalHeight + "px");
 
             // Determine which handlers to show based on image alignment
-            // Get computed style to check alignment and float properties
-            const computedStyle = window.getComputedStyle(el);
+            // We're already using computedStyle from above, so no need to redeclare
             const float = computedStyle.float;
             const marginLeft = computedStyle.marginLeft;
             const marginRight = computedStyle.marginRight;
@@ -1019,6 +1031,9 @@ class ResizePlugin {
         const storeKey = `_styles_border`;
         this.resizeTarget[storeKey] = `${width} solid ${color}`;
 
+        // Reposition the resizer to account for the border dimensions
+        this.positionResizerToTarget(this.resizeTarget);
+
         // Update active state in dropdown
         if (this.toolbar) {
             // Update width option active state
@@ -1271,6 +1286,17 @@ class ResizePlugin {
                 ...(this.options?.toolbar?.imageActions || {})
             }
         };
+        
+        // Check if the target element is a video
+        const isVideoElement = this.resizeTarget instanceof HTMLVideoElement || 
+                              (this.resizeTarget.tagName && 
+                               this.resizeTarget.tagName.toLowerCase() === 'iframe');
+        
+        // If it's a video, disable alt text and link buttons
+        if (isVideoElement) {
+            toolbarOptions.imageActions.altText = false;
+            toolbarOptions.imageActions.link = false;
+        }
 
         let html = '';
 
@@ -1279,7 +1305,9 @@ class ResizePlugin {
             html += `
       <div class="group">
         <a class="btn" data-type="border" title="Add border"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation"><path d="M8.33333 8C8.15267 8 8 8.14933 8 8.33333V15.6667C8.0007 15.7549 8.03604 15.8392 8.0984 15.9016C8.16076 15.964 8.24514 15.9993 8.33333 16H15.6667C15.8473 16 16 15.8507 16 15.6667V8.33333C16 8.15267 15.8507 8 15.6667 8H8.33333Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M4 7C4 5.34315 5.34315 4 7 4H17C18.6569 4 20 5.34315 20 7V17C20 18.6569 18.6569 20 17 20H7C5.34315 20 4 18.6569 4 17V7ZM7 6C6.44772 6 6 6.44772 6 7V17C6 17.5523 6.44772 18 7 18H17C17.5523 18 18 17.5523 18 17V7C18 6.44772 17.5523 6 17 6H7Z" fill="currentColor"></path></svg></a>
-        <a class="btn border-dropdown-toggle" data-type="border-dropdown" title="Border options"><svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M8.292 10.293a1.01 1.01 0 0 0 0 1.419l2.939 2.965c.218.215.5.322.779.322s.556-.107.769-.322l2.93-2.955a1.01 1.01 0 0 0 0-1.419.987.987 0 0 0-1.406 0l-2.298 2.317-2.307-2.327a.99.99 0 0 0-1.406 0"></path></svg></a>
+        <a class="btn border-dropdown-toggle" data-type="border-dropdown" title="Border options">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#434343"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+        </a>
         <div class="mat-menu border-dropdown-content" style="display: none;">
           <div class="menu-item-wrapper">
             <div class="menu-item" data-submenu="color-submenu">
@@ -1287,11 +1315,11 @@ class ResizePlugin {
               <div class="current-color-preview">
                 <div class="color-box" id="current-color-preview"></div>
               </div>
-              <span class="submenu-arrow">›</span>
+              <svg class="submenu-arrow" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#434343"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
             </div>
             <div class="menu-item" data-submenu="size-submenu">
-              <span>Size</span>
-              <span class="submenu-arrow">›</span>
+              <span style="margin-right: auto;">Size</span>
+              <svg class="submenu-arrow" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#434343"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
             </div>
           </div>
           
@@ -1448,12 +1476,19 @@ class ResizePlugin {
             // Prevent default event to avoid text selection during resize
             e.preventDefault();
             
-            // Store info about the resize operation
+            // Get border dimensions to include in the total size calculation
+            const computedStyle = window.getComputedStyle(this.resizeTarget);
+            const borderLeftWidth = parseInt(computedStyle.borderLeftWidth, 10) || 0;
+            const borderRightWidth = parseInt(computedStyle.borderRightWidth, 10) || 0;
+            const borderTopWidth = parseInt(computedStyle.borderTopWidth, 10) || 0;
+            const borderBottomWidth = parseInt(computedStyle.borderBottomWidth, 10) || 0;
+            
+            // Store info about the resize operation, including total dimensions with borders
             this.startResizePosition = {
                 left: e.clientX,
                 top: e.clientY,
-                width: this.resizeTarget.clientWidth,
-                height: this.resizeTarget.clientHeight,
+                width: this.resizeTarget.clientWidth + borderLeftWidth + borderRightWidth,
+                height: this.resizeTarget.clientHeight + borderTopWidth + borderBottomWidth,
             };
             
             // Add event listeners for the duration of the resize operation
@@ -1508,37 +1543,49 @@ class ResizePlugin {
         // Calculate delta changes
         const deltaX: number = e.clientX - this.startResizePosition.left;
         
-        // Get current dimensions from start position
+        // Get current dimensions from start position, which already include borders
         let width = this.startResizePosition.width;
         let height = this.startResizePosition.height;
         
-        // Calculate aspect ratio
-        const aspectRatio = height / width;
+        // Get current border widths
+        const computedStyle = window.getComputedStyle(this.resizeTarget);
+        const borderLeftWidth = parseInt(computedStyle.borderLeftWidth, 10) || 0;
+        const borderRightWidth = parseInt(computedStyle.borderRightWidth, 10) || 0;
+        const borderTopWidth = parseInt(computedStyle.borderTopWidth, 10) || 0;
+        const borderBottomWidth = parseInt(computedStyle.borderBottomWidth, 10) || 0;
         
-        // Calculate new width based on handler
+        // Get content dimensions (without borders)
+        const contentWidth = width - borderLeftWidth - borderRightWidth;
+        const contentHeight = height - borderTopWidth - borderBottomWidth;
+        
+        // Calculate aspect ratio based on content dimensions
+        const aspectRatio = contentHeight / contentWidth;
+        
+        // Calculate new content width based on handler
+        let newContentWidth = contentWidth;
         if (isLeftHandler) {
             // Left handler moves in opposite direction of mouse movement
-            width -= deltaX;
+            newContentWidth -= deltaX;
         } else if (isRightHandler) {
             // Right handler moves in same direction as mouse movement
-            width += deltaX;
+            newContentWidth += deltaX;
         } else {
             // Default resize behavior for backward compatibility
-            width += deltaX;
+            newContentWidth += deltaX;
         }
         
         // Always maintain aspect ratio for side handlers
         // This gives better UX since side handlers suggest horizontal resizing
         // with proper aspect ratio maintenance
-        height = aspectRatio * width;
+        const newContentHeight = aspectRatio * newContentWidth;
         
-        // Apply minimum size
-        width = Math.max(width, 30);
-        height = Math.max(height, 30);
+        // Apply minimum size (to content dimensions)
+        const finalContentWidth = Math.max(newContentWidth, 30);
+        const finalContentHeight = Math.max(newContentHeight, 30);
         
-        // Apply new dimensions
-        this.resizeTarget.style.setProperty("width", width + "px");
-        this.resizeTarget.style.setProperty("height", height + "px");
+        // Apply new dimensions to the element (without borders)
+        this.resizeTarget.style.setProperty("width", finalContentWidth + "px");
+        this.resizeTarget.style.setProperty("height", finalContentHeight + "px");
         
         // Update resizer position
         this.positionResizerToTarget(this.resizeTarget);
